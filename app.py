@@ -1,25 +1,19 @@
 import streamlit as st
-import pickle
+from textblob import TextBlob
 import pandas as pd
-#from wordcloud import WordCloud
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+import pickle
 
-# Load the trained SVM model and TF-IDF vectorizer
-with open('svm_model.pkl', 'rb') as file:
-    model = pickle.load(file)
-
-with open('tfidf_vectorizer.pkl', 'rb') as file:
-    vectorizer = pickle.load(file)
-
-# Function to make predictions
+# Function to make predictions using TextBlob
 def predict_sentiment(text):
-    text_vect = vectorizer.transform([text])
-    prediction = model.predict(text_vect)
-    
-    # Map numerical prediction to sentiment labels
-    sentiment_map = {0: 'Negative', 1: 'Neutral', 2: 'Positive'}
-    return sentiment_map.get(prediction[0], 'Unknown')
+    analysis = TextBlob(text)
+    sentiment = analysis.sentiment.polarity
+
+    if sentiment > 0:
+        return 'Positive'
+    elif sentiment == 0:
+        return 'Neutral'
+    else:
+        return 'Negative'
 
 # Function to generate sample data from the dataset
 def get_sample_data(file_path, num_samples=5):
@@ -46,29 +40,6 @@ def get_sample_data(file_path, num_samples=5):
     except Exception as e:
         st.error(f"Error loading or processing the dataset: {e}")
         return {}
-
-# Function to perform EDA
-def perform_eda(file_path):
-    try:
-        data = pd.read_csv(file_path)
-        data = data.dropna(subset=['Sentiment'])
-        
-        # Sentiment distribution pie chart
-        sentiment_counts = data['Sentiment'].value_counts()
-        st.write("### Sentiment Distribution")
-        st.write(sentiment_counts.plot.pie(autopct='%1.1f%%', colors=['#ff9999','#66b3ff','#99ff99']))
-        
-        # Word clouds for each sentiment
-        sentiments = ['Negative', 'Neutral', 'Positive']
-        for sentiment in sentiments:
-            subset = data[data['Sentiment'] == sentiment]
-            text = " ".join(subset['Title'].astype(str) + " " + subset['Description'].astype(str))
-            wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
-            
-            st.write(f"**Word Cloud for {sentiment} Sentiment**")
-            st.image(wordcloud.to_image())
-    except Exception as e:
-        st.error(f"Error performing EDA: {e}")
 
 # Path to the dataset
 dataset_path = 'synthetic_coca_cola_sentiment_analysis.csv'
