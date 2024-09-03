@@ -1,19 +1,21 @@
 import streamlit as st
-from textblob import TextBlob
 import pandas as pd
-import pickle
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# Function to make predictions using TextBlob
+# Initialize the VADER sentiment analyzer
+analyzer = SentimentIntensityAnalyzer()
+
+# Function to make predictions using VADER
 def predict_sentiment(text):
-    analysis = TextBlob(text)
-    sentiment = analysis.sentiment.polarity
-
-    if sentiment > 0:
+    sentiment_score = analyzer.polarity_scores(text)
+    compound_score = sentiment_score['compound']
+    
+    if compound_score >= 0.05:
         return 'Positive'
-    elif sentiment == 0:
-        return 'Neutral'
-    else:
+    elif compound_score <= -0.05:
         return 'Negative'
+    else:
+        return 'Neutral'
 
 # Function to generate sample data from the dataset
 def get_sample_data(file_path, num_samples=5):
