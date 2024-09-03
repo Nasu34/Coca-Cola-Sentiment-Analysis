@@ -1,5 +1,5 @@
 import streamlit as st
-import joblib
+import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
@@ -7,8 +7,11 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Load the trained SVM model and TF-IDF vectorizer
-model = joblib.load('svm_model.pkl')
-vectorizer = joblib.load('tfidf_vectorizer.pkl')
+with open('svm_model.pkl', 'rb') as file:
+    model = pickle.load(file)
+
+with open('tfidf_vectorizer.pkl', 'rb') as file:
+    vectorizer = pickle.load(file)
 
 # Function to make predictions
 def predict_sentiment(text):
