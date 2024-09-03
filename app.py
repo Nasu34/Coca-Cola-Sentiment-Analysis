@@ -1,7 +1,6 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -56,10 +55,8 @@ def perform_eda(file_path):
         
         # Sentiment distribution pie chart
         sentiment_counts = data['Sentiment'].value_counts()
-        fig, ax = plt.subplots()
-        ax.pie(sentiment_counts, labels=sentiment_counts.index, autopct='%1.1f%%', colors=['#ff9999','#66b3ff','#99ff99'])
-        ax.set_title('Sentiment Distribution')
-        st.pyplot(fig)
+        st.write("### Sentiment Distribution")
+        st.write(sentiment_counts.plot.pie(autopct='%1.1f%%', colors=['#ff9999','#66b3ff','#99ff99']))
         
         # Word clouds for each sentiment
         sentiments = ['Negative', 'Neutral', 'Positive']
@@ -82,7 +79,7 @@ st.title('Coca-Cola Sentiment Analysis')
 # Dropdown menu
 option = st.selectbox(
     'Choose an option:',
-    ['Sentiment Prediction', 'Generate Sample Data', 'Exploratory Data Analysis']
+    ['Sentiment Prediction', 'Generate Sample Data']
 )
 
 if 'user_input' not in st.session_state:
@@ -107,6 +104,3 @@ elif option == 'Generate Sample Data':
             st.write(f"**{sentiment}**:")
             for text in texts:
                 st.write(f"- {text}")
-
-elif option == 'Exploratory Data Analysis':
-    perform_eda(dataset_path)
