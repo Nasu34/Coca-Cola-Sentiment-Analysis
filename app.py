@@ -2,6 +2,8 @@ import streamlit as st
 import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Load the trained SVM model and TF-IDF vectorizer
@@ -43,6 +45,31 @@ def get_sample_data(file_path, num_samples=5):
         st.error(f"Error loading or processing the dataset: {e}")
         return {}
 
+# Function to perform EDA
+def perform_eda(file_path):
+    try:
+        data = pd.read_csv(file_path)
+        data = data.dropna(subset=['Sentiment'])
+        
+        # Sentiment distribution pie chart
+        sentiment_counts = data['Sentiment'].value_counts()
+        fig, ax = plt.subplots()
+        ax.pie(sentiment_counts, labels=sentiment_counts.index, autopct='%1.1f%%', colors=['#ff9999','#66b3ff','#99ff99'])
+        ax.set_title('Sentiment Distribution')
+        st.pyplot(fig)
+        
+        # Word clouds for each sentiment
+        sentiments = ['Negative', 'Neutral', 'Positive']
+        for sentiment in sentiments:
+            subset = data[data['Sentiment'] == sentiment]
+            text = " ".join(subset['Title'].astype(str) + " " + subset['Description'].astype(str))
+            wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+            
+            st.write(f"**Word Cloud for {sentiment} Sentiment**")
+            st.image(wordcloud.to_image())
+    except Exception as e:
+        st.error(f"Error performing EDA: {e}")
+
 # Path to the dataset
 dataset_path = 'synthetic_coca_cola_sentiment_analysis.csv'
 
@@ -52,7 +79,7 @@ st.title('Coca-Cola Sentiment Analysis')
 # Dropdown menu
 option = st.selectbox(
     'Choose an option:',
-    ['Sentiment Prediction', 'Generate Sample Data']
+    ['Sentiment Prediction', 'Generate Sample Data', 'Exploratory Data Analysis']
 )
 
 if 'user_input' not in st.session_state:
@@ -77,3 +104,6 @@ elif option == 'Generate Sample Data':
             st.write(f"**{sentiment}**:")
             for text in texts:
                 st.write(f"- {text}")
+
+elif option == 'Exploratory Data Analysis':
+    perform_eda(dataset_path)
