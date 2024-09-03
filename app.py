@@ -1,7 +1,7 @@
 import streamlit as st
 import pickle
 import pandas as pd
-from wordcloud import WordCloud
+#from wordcloud import WordCloud
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
